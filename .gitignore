@@ -1,0 +1,12 @@
+# .NET build output
+bin/
+obj/
+
+# Native build output
+*.dylib
+*.so
+*.dll
+
+.DS_Store
+.idea/
+.vs/
