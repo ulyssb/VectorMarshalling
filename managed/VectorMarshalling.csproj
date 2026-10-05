@@ -9,10 +9,22 @@
     <InvariantGlobalization>true</InvariantGlobalization>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <NativeDir>$(MSBuildProjectDirectory)/../native</NativeDir>
+  </PropertyGroup>
+
+  <!-- Build the native lib before the managed build; skipped when interop.cpp is unchanged. -->
+  <Target Name="BuildNative" BeforeTargets="BeforeBuild"
+          Inputs="$(NativeDir)/interop.cpp;$(NativeDir)/build.sh"
+          Outputs="$(NativeDir)/libinterop.dylib">
+    <!-- build.sh may print a failed first attempt before falling back to another SDK,
+         so trust its exit code rather than scanning its output for "error:". -->
+    <Exec Command="bash &quot;$(NativeDir)/build.sh&quot;" IgnoreStandardErrorWarningFormat="true" />
+  </Target>
+
   <ItemGroup>
     <!-- Copy the built native lib next to the managed output so DllImport("interop") resolves it. -->
-    <None Include="../native/libinterop.dylib" CopyToOutputDirectory="PreserveNewest"
-          Condition="Exists('../native/libinterop.dylib')" />
+    <None Include="$(NativeDir)/libinterop.dylib" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>
