@@ -10,6 +10,13 @@ internal static class VectorExamples
     {
         var buffer = new double[16];
         int actual = Native.ComputeDoubleVector(buffer, buffer.Length);
+        // Native returns the true size even when it only filled `capacity` slots,
+        // so retry with an exact-size buffer instead of padding with zeros.
+        while (actual > buffer.Length)
+        {
+            buffer = new double[actual];
+            actual = Native.ComputeDoubleVector(buffer, buffer.Length);
+        }
         Array.Resize(ref buffer, actual);
         return buffer;
     }
@@ -18,6 +25,11 @@ internal static class VectorExamples
     {
         var buffer = new double[16];
         int actual = Native.ComputeDoubleVector2(buffer, buffer.Length);
+        while (actual > buffer.Length)
+        {
+            buffer = new double[actual];
+            actual = Native.ComputeDoubleVector2(buffer, buffer.Length);
+        }
         Array.Resize(ref buffer, actual);
         return buffer;
     }

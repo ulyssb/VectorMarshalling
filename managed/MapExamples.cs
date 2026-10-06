@@ -13,6 +13,14 @@ internal static class MapExamples
         var keys = new int[32];
         var values = new double[32];
         int actual = Native.ComputeIntDoubleMap(keys, values, keys.Length);
+        // Native returns the true size even when it stopped at `capacity`,
+        // so retry with exact-size arrays rather than reading past the end.
+        while (actual > keys.Length)
+        {
+            keys = new int[actual];
+            values = new double[actual];
+            actual = Native.ComputeIntDoubleMap(keys, values, keys.Length);
+        }
 
         var dict = new Dictionary<int, double>(actual);
         for (int i = 0; i < actual; i++)
