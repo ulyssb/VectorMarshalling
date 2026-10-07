@@ -24,7 +24,9 @@ const int iterations = 200_000;
 
 // warm up JIT / native lib before timing
 VectorExamples.ComputeDoubles();
+VectorExamples.ComputeDoubles2();
 VectorExamples.ComputeStrings();
+VectorExamples.ComputeStrings2();
 
 var sw = Stopwatch.StartNew();
 for (int i = 0; i < iterations; i++) VectorExamples.ComputeDoubles();
@@ -36,10 +38,10 @@ for (int i = 0; i < iterations; i++) VectorExamples.ComputeDoubles2();
 sw.Stop();
 Console.WriteLine($"double[6] DLLImport  x{iterations}: {sw.ElapsedMilliseconds} ms total, {sw.Elapsed.TotalMicroseconds / iterations:F3} us/call");
 
-// sw.Restart();
-// for (int i = 0; i < iterations; i++) VectorExamples.ComputeStrings();
-// sw.Stop();
-// Console.WriteLine($"string[100]  x{iterations}: {sw.ElapsedMilliseconds} ms total, {sw.Elapsed.TotalMicroseconds / iterations:F3} us/call");
+sw.Restart();
+for (int i = 0; i < iterations; i++) VectorExamples.ComputeStrings();
+sw.Stop();
+Console.WriteLine($"string[100]  x{iterations}: {sw.ElapsedMilliseconds} ms total, {sw.Elapsed.TotalMicroseconds / iterations:F3} us/call");
 
 sw.Restart();
 for (int i = 0; i < iterations; i++) VectorExamples.ComputeStrings2();

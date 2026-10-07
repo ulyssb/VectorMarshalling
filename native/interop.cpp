@@ -23,18 +23,17 @@
 // ---------------------------------------------------------------------
 EXPORT int32_t ComputeDoubleVector(double* buffer, int32_t capacity) {
     std::vector<double> result = {1.1, 2.2, 3.3, 4.4, 5.5, 6.6};
+    if (capacity < 0) capacity = 0; // a negative n would become a huge size_t in memcpy
     int32_t n = std::min<int32_t>(capacity, static_cast<int32_t>(result.size()));
     std::memcpy(buffer, result.data(), n * sizeof(double));
     return static_cast<int32_t>(result.size()); // true size, in case buffer was too small
 }
 
-// ---------------------------------------------------------------------
-// 1) vector<double> - blittable elements, caller-allocated buffer.
-//    Cheapest possible pattern: one memcpy, no native allocation,
-//    no free function needed since C# owns the buffer.
-// ---------------------------------------------------------------------
+// Identical to ComputeDoubleVector; bound with [DllImport] on the C# side
+// so the benchmark can compare it against the [LibraryImport] stub.
 EXPORT int32_t ComputeDoubleVector2(double* buffer, int32_t capacity) {
     std::vector<double> result = {1.1, 2.2, 3.3, 4.4, 5.5, 6.6};
+    if (capacity < 0) capacity = 0; // a negative n would become a huge size_t in memcpy
     int32_t n = std::min<int32_t>(capacity, static_cast<int32_t>(result.size()));
     std::memcpy(buffer, result.data(), n * sizeof(double));
     return static_cast<int32_t>(result.size()); // true size, in case buffer was too small
@@ -46,6 +45,7 @@ EXPORT int32_t ComputeDoubleVector2(double* buffer, int32_t capacity) {
 //    so C# must call the matching Free function.
 // ---------------------------------------------------------------------
 struct Point3D { double x, y, z; };
+static_assert(sizeof(Point3D) == 3 * sizeof(double), "must match C# Point3D layout");
 
 EXPORT Point3D* ComputePointVector(int32_t* outLength) {
     std::vector<Point3D> result = { {1, 2, 3}, {4, 5, 6}, {7, 8, 9} };
@@ -77,6 +77,7 @@ EXPORT char** ComputeStringVector(int32_t* outLength) {
     return arr;
 }
 
+// Identical to ComputeStringVector; bound with [DllImport] for the benchmark.
 EXPORT char** ComputeStringVector2(int32_t* outLength) {
     std::vector<std::string> result;
     for (int32_t i = 0; i < 100; ++i) result.push_back("str" + std::to_string(i));
